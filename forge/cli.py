@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
+import sys
 from pathlib import Path
 
 from forge.loader import load_all
@@ -17,8 +19,12 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="forge")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("build", help="convert rules to all backends")
+    sub.add_parser("test", help="run the detection test suite via pytest")
     sub.add_parser("coverage", help="write the ATT&CK layer")
     args = parser.parse_args(argv)
+
+    if args.cmd == "test":
+        return subprocess.call([sys.executable, "-m", "pytest", "-v"], cwd=ROOT)
 
     rules = load_all(RULES)
     if args.cmd == "build":
