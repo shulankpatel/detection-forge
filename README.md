@@ -11,7 +11,9 @@
 
 ## What it does
 
-detection-forge is a **Detection-as-Code** pipeline. You author each detection once as a [Sigma](https://github.com/SigmaHQ/sigma) rule — tagged with its MITRE ATT&CK technique and shipped with sample events — and the engine converts it into per-platform queries for Splunk, Microsoft Sentinel, Elastic, and Wazuh, unit-tests its logic against the sample events, and aggregates every rule into a MITRE ATT&CK Navigator coverage layer. Every rule is validated and **tested in CI** on each push, so detections that no longer fire correctly (or stop converting) break the build instead of silently rotting in production.
+detection-forge is a **Detection-as-Code** pipeline. You author each detection once as a [Sigma](https://github.com/SigmaHQ/sigma) rule — tagged with its MITRE ATT&CK technique and shipped with sample events — and the engine converts it into per-platform queries for Splunk, Microsoft Sentinel (KQL via the pySigma Microsoft 365 Defender backend; usable in Microsoft Sentinel / Defender XDR advanced hunting), Elastic, and Wazuh,\* unit-tests its logic against the sample events, and aggregates every rule into a MITRE ATT&CK Navigator coverage layer. Every rule is validated and **tested in CI** on each push, so detections that no longer fire correctly (or stop converting) break the build instead of silently rotting in production.
+
+<sub>\* *Elastic/OpenSearch-compatible queries for the Wazuh indexer; a native Wazuh XML backend is on the roadmap.*</sub>
 
 ## Quickstart
 
@@ -20,14 +22,14 @@ git clone https://github.com/shulankpatel/detection-forge.git
 cd detection-forge
 
 # Run the detection tests — no install needed beyond pytest + pyyaml (both stdlib-adjacent).
-python3 -m pytest
+python3 -m pytest          # or: python3 -m forge.cli test
 
 # Build per-platform queries into dist/, and (re)generate the ATT&CK coverage layer.
 python3 -m forge.cli build
 python3 -m forge.cli coverage
 ```
 
-- `pip install -e .` registers the short `forge` command, so you can run `forge build` / `forge coverage` instead of `python3 -m forge.cli ...`.
+- `pip install -e .` registers the short `forge` command, so you can run `forge build` / `forge test` / `forge coverage` instead of `python3 -m forge.cli ...`.
 - Converting rules to actual SIEM queries needs the pySigma backends: `pip install -r requirements-backends.txt`. This is done automatically in CI; without the backends, `forge build` simply reports that no backends are available and skips conversion (tests still pass).
 
 ## How detections are tested
@@ -54,11 +56,13 @@ rules/                       author once (Sigma YAML, ATT&CK-tagged)
         ▼
 dist/
   splunk/    *.spl             Splunk SPL
-  sentinel/  *.kql             Microsoft Sentinel KQL
+  sentinel/  *.kql             Microsoft Sentinel KQL (Microsoft 365 Defender backend)
   elastic/   *.ndjson          Elastic detection rules
-  wazuh/     *.xml             Wazuh rules (Elastic-compatible fallback)
+  wazuh/     *.txt             Elastic/OpenSearch-compatible query for the Wazuh indexer*
   attack-navigator-layer.json  aggregated ATT&CK coverage
 ```
+
+<sub>\* *Elastic/OpenSearch-compatible queries for the Wazuh indexer; a native Wazuh XML backend is on the roadmap.*</sub>
 
 A Splunk-only team takes `dist/splunk/`; a KQL user takes `dist/sentinel/`; and so on. See [`docs/architecture.md`](docs/architecture.md) for the data-flow diagram and a walkthrough of each engine module.
 
@@ -73,10 +77,12 @@ The 8 bundled detections cover 9 ATT&CK techniques:
 | T1053.005 | Scheduled Task/Job: Scheduled Task | Scheduled task creation via `schtasks` | Splunk, Sentinel, Elastic, Wazuh |
 | T1059 | Command and Scripting Interpreter | Office application spawning a command shell | Splunk, Sentinel, Elastic, Wazuh |
 | T1566 | Phishing | Office application spawning a command shell | Splunk, Sentinel, Elastic, Wazuh |
-| T1078.004 | Valid Accounts: Cloud Accounts | AWS root account usage | Splunk, Sentinel, Elastic |
-| T1562.008 | Impair Defenses: Disable Cloud Logs | AWS CloudTrail logging disabled or tampered | Splunk, Sentinel, Elastic |
-| T1098 | Account Manipulation | AWS IAM privilege escalation (policy attach / access key) | Splunk, Sentinel, Elastic |
-| T1078 | Valid Accounts | Azure AD multi-factor authentication disabled | Splunk, Sentinel, Elastic |
+| T1078.004 | Valid Accounts: Cloud Accounts | AWS root account usage | Splunk, Sentinel, Elastic, Wazuh |
+| T1562.008 | Impair Defenses: Disable Cloud Logs | AWS CloudTrail logging disabled or tampered | Splunk, Sentinel, Elastic, Wazuh |
+| T1098 | Account Manipulation | AWS IAM privilege escalation (policy attach / access key) | Splunk, Sentinel, Elastic, Wazuh |
+| T1078 | Valid Accounts | Azure AD multi-factor authentication disabled | Splunk, Sentinel, Elastic, Wazuh |
+
+<sub>\* *Wazuh = Elastic/OpenSearch-compatible queries for the Wazuh indexer; a native Wazuh XML backend is on the roadmap.* The converter emits a query for every registered backend on every rule. Cloud-log detections are typically deployed in Splunk/Sentinel/Elastic, while the Wazuh/OpenSearch query is provided for teams whose indexer holds those logs.</sub>
 
 The aggregated coverage layer is generated to [`dist/attack-navigator-layer.json`](dist/attack-navigator-layer.json). To view the interactive heatmap, open the [MITRE ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) and choose **Open Existing Layer → Upload from local**, then select that JSON file. (Optionally, save a screenshot of the rendered heatmap to `docs/img/attack-coverage.png` for your write-up.)
 
