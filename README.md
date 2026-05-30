@@ -13,7 +13,7 @@
 
 ## What it does
 
-detection-forge is a **Detection-as-Code** pipeline. You author each detection once as a [Sigma](https://github.com/SigmaHQ/sigma) rule — tagged with its MITRE ATT&CK technique and shipped with sample events — and the engine converts it into per-platform queries for Splunk, Microsoft Sentinel (KQL via the pySigma Microsoft 365 Defender backend; usable in Microsoft Sentinel / Defender XDR advanced hunting), Elastic, and Wazuh,\* unit-tests its logic against the sample events, and aggregates every rule into a MITRE ATT&CK Navigator coverage layer. Every rule is validated and **tested in CI** on each push, so detections that no longer fire correctly (or stop converting) break the build instead of silently rotting in production.
+detection-forge is a **Detection-as-Code** pipeline. You author each detection once as a [Sigma](https://github.com/SigmaHQ/sigma) rule — tagged with its MITRE ATT&CK technique and shipped with sample events — and the engine converts it into per-platform queries for Splunk, Microsoft Sentinel (KQL via the pySigma Kusto backend; usable in Microsoft Sentinel / Defender XDR / Azure Data Explorer), Elastic, and Wazuh,\* unit-tests its logic against the sample events, and aggregates every rule into a MITRE ATT&CK Navigator coverage layer. Every rule is validated and **tested in CI** on each push, so detections that no longer fire correctly (or stop converting) break the build instead of silently rotting in production.
 
 <sub>\* *Elastic/OpenSearch-compatible queries for the Wazuh indexer; a native Wazuh XML backend is on the roadmap.*</sub>
 

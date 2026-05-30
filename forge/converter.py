@@ -33,9 +33,10 @@ if _PYSIGMA_AVAILABLE:
     except ImportError:
         pass
     try:
-        from sigma.backends.microsoft365defender import Microsoft365DefenderBackend
+        from sigma.backends.kusto import KustoBackend
 
-        _BACKENDS["sentinel"] = (Microsoft365DefenderBackend, "kql")
+        # KustoBackend emits KQL for Microsoft Sentinel / Defender XDR / Azure Data Explorer.
+        _BACKENDS["sentinel"] = (KustoBackend, "kql")
     except ImportError:
         pass
 
