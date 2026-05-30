@@ -1,0 +1,19 @@
+title: AWS Root Account Usage
+id: 0a1f8b10-0005-4000-8000-000000000005
+status: experimental
+description: Detects activity performed by the AWS account root user, which should be reserved for break-glass scenarios and almost never used for day-to-day operations.
+logsource:
+  product: aws
+  service: cloudtrail
+detection:
+  selection:
+    userIdentity.type: Root
+  filter:
+    eventType: AwsServiceEvent
+  condition: selection and not filter
+falsepositives:
+  - Initial account setup or rare, audited break-glass administrative actions.
+level: high
+tags:
+  - attack.privilege_escalation
+  - attack.t1078.004

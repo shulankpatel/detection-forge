@@ -1,0 +1,4 @@
+[
+  {"userIdentity": {"type": "IAMUser", "userName": "alice"}, "eventName": "ConsoleLogin"},
+  {"userIdentity": {"type": "Root"}, "eventName": "BatchGetItem", "eventType": "AwsServiceEvent"}
+]
