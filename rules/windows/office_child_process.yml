@@ -1,0 +1,27 @@
+title: Office Application Spawning a Command Shell
+id: 0a1f8b10-0004-4000-8000-000000000004
+status: experimental
+description: Detects a Microsoft Office application spawning a scripting or command interpreter, a hallmark of malicious macro and phishing-document execution.
+logsource:
+  product: windows
+  category: process_creation
+detection:
+  selection:
+    ParentImage|endswith:
+      - \winword.exe
+      - \excel.exe
+      - \powerpnt.exe
+    Image|endswith:
+      - \cmd.exe
+      - \powershell.exe
+      - \wscript.exe
+      - \mshta.exe
+  condition: selection
+falsepositives:
+  - Office add-ins or templates that legitimately launch helper scripts.
+level: high
+tags:
+  - attack.execution
+  - attack.t1059
+  - attack.initial_access
+  - attack.t1566

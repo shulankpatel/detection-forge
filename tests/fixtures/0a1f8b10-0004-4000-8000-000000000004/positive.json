@@ -1,0 +1,5 @@
+[
+  {"ParentImage": "C:\\Program Files\\Microsoft Office\\root\\Office16\\winword.exe",
+   "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+   "CommandLine": "powershell.exe -nop -w hidden -c IEX(...)"}
+]
