@@ -65,3 +65,86 @@ def extract_iocs(text: str) -> dict:
         if any(h in ln.lower() for h in _CMD_HINTS) and ln.strip()
     )
     return iocs
+
+import json
+import uuid
+from pathlib import Path
+import yaml
+
+# IOC type -> (selection name, Sigma field expression)
+_FIELD_MAP = [
+    (("sha256", "sha1", "md5"), "selection_hash", "Hashes|contains"),
+    (("cmdline",), "selection_cmdline", "CommandLine|contains"),
+    (("filepath",), "selection_file", "Image|endswith"),
+    (("regkey",), "selection_registry", "TargetObject|contains"),
+    (("domain", "ipv4", "url"), "selection_network", "DestinationHostname|contains"),
+]
+
+def _label(source_ref: str) -> str:
+    m = re.search(r"https?://([^/]+)", source_ref)
+    return m.group(1) if m else source_ref[:40]
+
+def draft_rule(source_ref: str, iocs: dict, attack: list, title=None) -> dict:
+    selections = {}
+    for types, name, field in _FIELD_MAP:
+        values = []
+        for t in types:
+            values.extend(iocs.get(t, []))
+        if values:
+            selections[name] = {field: _dedupe(values)}
+    if not selections:
+        raise ValueError("no actionable indicators found to draft a rule")
+    if any(n in selections for n in ("selection_hash", "selection_cmdline", "selection_file")):
+        logsource = {"product": "windows", "category": "process_creation"}
+    elif "selection_registry" in selections:
+        logsource = {"product": "windows", "category": "registry_event"}
+    else:
+        logsource = {"category": "network_connection"}
+    tags = ["ingested.auto-extracted"] + [f"attack.{t.lower()}" for t in attack]
+    return {
+        "title": title or f"Indicators from {_label(source_ref)}",
+        "id": str(uuid.uuid5(uuid.NAMESPACE_URL, source_ref)),
+        "status": "experimental",
+        "description": (
+            f"Auto-drafted by `forge ingest` from {source_ref}. "
+            "REVIEW REQUIRED: verify the logsource and field mappings."
+        ),
+        "references": [source_ref],
+        "logsource": logsource,
+        "detection": {**selections, "condition": "1 of them"},
+        "level": "medium",
+        "tags": tags,
+    }
+
+def make_fixtures(rule: dict):
+    detection = rule["detection"]
+    positive = {}
+    for name, sel in detection.items():
+        if name == "condition":
+            continue
+        for key, vals in sel.items():
+            field = key.split("|")[0]
+            positive[field] = vals[0] if isinstance(vals, list) else vals
+        break  # one satisfied selection is enough for `1 of them`
+    return [positive], [{}]  # empty event matches nothing -> does not fire
+
+def ingest(text: str, source_ref: str, out_dir, fixtures_dir) -> dict:
+    iocs = extract_iocs(text)
+    attack = extract_attack(text)
+    rule = draft_rule(source_ref, iocs, attack)
+    slug = (re.sub(r"[^a-z0-9]+", "-", _label(source_ref).lower()).strip("-") or "report")[:50]
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    rule_path = out / f"{slug}.yml"
+    banner = (
+        f"# AUTO-EXTRACTED by `forge ingest` from {source_ref} - REVIEW REQUIRED.\n"
+        "# Indicators were extracted literally from the source; verify logsource\n"
+        "# and field mappings before trusting this detection.\n"
+    )
+    rule_path.write_text(banner + yaml.safe_dump(rule, sort_keys=False))
+    pos, neg = make_fixtures(rule)
+    fx = Path(fixtures_dir) / rule["id"]
+    fx.mkdir(parents=True, exist_ok=True)
+    (fx / "positive.json").write_text(json.dumps(pos, indent=2))
+    (fx / "negative.json").write_text(json.dumps(neg, indent=2))
+    return {"rule": rule_path, "id": rule["id"], "iocs": iocs, "attack": attack}
