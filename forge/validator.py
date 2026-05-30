@@ -20,12 +20,23 @@ def _match_value(actual, expected, modifier: str | None) -> bool:
         return fnmatch.fnmatch(a.lower(), e.lower())
     return a.lower() == e.lower()
 
+def _get(event, field):
+    if "." in field:
+        cur = event
+        for part in field.split("."):
+            if isinstance(cur, dict):
+                cur = cur.get(part)
+            else:
+                return None
+        return cur
+    return event.get(field)
+
 def _eval_selection(selection, event: dict) -> bool:
     if isinstance(selection, list):
         return any(_eval_selection(s, event) for s in selection)
     for key, expected in selection.items():
         field, _, modifier = key.partition("|")
-        actual = event.get(field)
+        actual = _get(event, field)
         if isinstance(expected, list):
             ok = any(_match_value(actual, v, modifier or None) for v in expected)
         else:

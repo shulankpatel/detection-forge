@@ -43,3 +43,10 @@ def test_all_of_pattern():
     det = {"sel_x": {"A": 1}, "sel_y": {"B": 2}, "condition": "all of sel_*"}
     assert matches(det, {"A": 1, "B": 2}) is True
     assert matches(det, {"A": 1, "B": 9}) is False
+
+
+def test_nested_field_lookup():
+    det = {"selection": {"userIdentity.type": "Root"}, "condition": "selection"}
+    assert matches(det, {"userIdentity": {"type": "Root"}}) is True
+    assert matches(det, {"userIdentity": {"type": "IAMUser"}}) is False
+    assert matches(det, {"other": 1}) is False
