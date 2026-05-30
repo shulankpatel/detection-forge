@@ -1,0 +1,5 @@
+[
+  {"TargetImage": "C:\\Windows\\System32\\lsass.exe",
+   "SourceImage": "C:\\Users\\victim\\Downloads\\mimikatz.exe",
+   "GrantedAccess": "0x1410"}
+]
