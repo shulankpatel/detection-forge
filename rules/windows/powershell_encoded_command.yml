@@ -1,0 +1,25 @@
+# rules/windows/powershell_encoded_command.yml
+title: PowerShell Encoded Command Execution
+id: 0a1f8b10-0001-4000-8000-000000000001
+status: experimental
+description: Detects PowerShell launched with an encoded command, often used to obfuscate payloads.
+logsource:
+  product: windows
+  category: process_creation
+detection:
+  selection_img:
+    Image|endswith:
+      - \powershell.exe
+      - \pwsh.exe
+  selection_flag:
+    CommandLine|contains:
+      - ' -enc '
+      - ' -EncodedCommand '
+      - ' -e '
+  condition: selection_img and selection_flag
+falsepositives:
+  - Rare administrative scripts that legitimately pass encoded commands.
+level: high
+tags:
+  - attack.execution
+  - attack.t1059.001
