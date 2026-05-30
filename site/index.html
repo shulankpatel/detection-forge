@@ -4,12 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>detection-forge — Detection-as-Code catalog</title>
+  <meta name="description" content="Write a detection once in Sigma — get tested, ATT&CK-mapped queries for Splunk, Sentinel, Elastic and Wazuh, automatically.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
   <header class="hero">
-    <h1>detection-forge</h1>
-    <p class="tagline">Write a detection once in Sigma — get tested, ATT&amp;CK-mapped queries for Splunk, Sentinel, Elastic &amp; Wazuh, automatically.</p>
+    <span class="eyebrow"><span class="pulse" aria-hidden="true"></span>detection-as-code &middot; open source</span>
+    <h1>detection<span class="hl">-</span>forge</h1>
+    <p class="tagline">Write a detection once in Sigma &mdash; get tested, ATT&amp;CK-mapped queries for Splunk, Sentinel, Elastic &amp; Wazuh, automatically.</p>
     <div id="stats" class="stats"></div>
     <div class="cta">
       <a class="btn primary" href="https://github.com/shulankpatel/detection-forge">View on GitHub</a>
@@ -18,6 +25,7 @@
   </header>
   <main>
     <section id="catalog-section">
+      <p class="eyebrow section-eyebrow">// catalog</p>
       <h2>Detection catalog</h2>
       <div class="filters">
         <label>Platform <select id="filter-platform"></select></label>
@@ -26,7 +34,9 @@
       <div id="catalog" class="grid"></div>
     </section>
     <section id="coverage-section">
+      <p class="eyebrow section-eyebrow">// coverage</p>
       <h2>MITRE ATT&amp;CK coverage</h2>
+      <p class="section-note">Heat reflects how many detections map to each technique. Scroll horizontally to traverse the kill chain.</p>
       <div id="heatmap" class="heatmap"></div>
     </section>
   </main>

@@ -68,7 +68,7 @@ function cardHTML(d, i) {
   <article class="card" data-i="${i}">
     <header>
       <span class="platform ${esc(d.platform)}">${esc(PLATFORM_LABELS[d.platform] || d.platform)}</span>
-      <span class="level">${esc(d.level)}</span>
+      <span class="level" data-level="${esc(d.level)}"${d.level ? "" : " data-empty"}>${esc(d.level)}</span>
     </header>
     <h3>${esc(d.title)}</h3>
     <p class="desc">${esc(d.description)}</p>
@@ -113,8 +113,28 @@ function tabContent(d, key) {
   return codeBlock(q);
 }
 
+// Lightweight, dependency-free syntax flavor for the code blocks.
+// Operates on ALREADY-ESCAPED text, so it cannot introduce markup/XSS, and
+// .copy reads code.textContent which strips these spans — copied text stays raw.
+function highlight(escaped) {
+  return escaped
+    // line comments (# ... ) — common in Sigma/SPL
+    .replace(/(^|\n)(\s*)(#.*?)(?=\n|$)/g, '$1$2<span class="tok-cmt">$3</span>')
+    // double-quoted strings
+    .replace(/(&quot;(?:[^&]|&(?!quot;))*?&quot;)/g, '<span class="tok-str">$1</span>')
+    // single-quoted strings
+    .replace(/(&#39;(?:[^&]|&(?!#39;))*?&#39;)/g, '<span class="tok-str">$1</span>')
+    // YAML/JSON keys at start of a (indented) line, before a colon
+    .replace(/(^|\n)(\s*)([\w.$-]+)(\s*:)/g, '$1$2<span class="tok-key">$3</span>$4')
+    // technique ids / standalone numbers
+    .replace(/\b(T\d{4}(?:\.\d{3})?|\d+(?:\.\d+)?)\b/g, '<span class="tok-num">$1</span>')
+    // pipes & key operators (SPL / Sigma condition glue)
+    .replace(/(\s)(\||=|\bAND\b|\bOR\b|\bNOT\b|\bby\b|\bwhere\b|\bstats\b)(\s)/g,
+             '$1<span class="tok-punc">$2</span>$3');
+}
+
 function codeBlock(text) {
-  return `<div class="codewrap"><button class="copy">Copy</button><pre><code>${esc(text)}</code></pre></div>`;
+  return `<div class="codewrap"><button class="copy">Copy</button><pre><code>${highlight(esc(text))}</code></pre></div>`;
 }
 
 function wireCopy(scope) {
