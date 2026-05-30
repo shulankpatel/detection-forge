@@ -1,0 +1,20 @@
+title: AWS IAM Privilege Escalation via Policy Attachment or Access Key Creation
+id: 0a1f8b10-0007-4000-8000-000000000007
+status: experimental
+description: Detects attaching the AdministratorAccess managed policy to a user or creating a new IAM access key, both common privilege-escalation and persistence steps after credential compromise.
+logsource:
+  product: aws
+  service: cloudtrail
+detection:
+  selection_attach:
+    eventName: AttachUserPolicy
+    requestParameters.policyArn|contains: AdministratorAccess
+  selection_key:
+    eventName: CreateAccessKey
+  condition: selection_attach or selection_key
+falsepositives:
+  - Provisioning workflows that legitimately grant admin policies or rotate access keys.
+level: high
+tags:
+  - attack.persistence
+  - attack.t1098

@@ -1,0 +1,4 @@
+[
+  {"eventName": "AttachUserPolicy",
+   "requestParameters": {"policyArn": "arn:aws:iam::aws:policy/ReadOnlyAccess", "userName": "bob"}}
+]

@@ -1,0 +1,6 @@
+[
+  {"eventName": "AttachUserPolicy",
+   "requestParameters": {"policyArn": "arn:aws:iam::aws:policy/AdministratorAccess", "userName": "bob"}},
+  {"eventName": "CreateAccessKey",
+   "requestParameters": {"userName": "bob"}}
+]
