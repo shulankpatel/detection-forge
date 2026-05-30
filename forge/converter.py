@@ -59,13 +59,15 @@ def build_all(rules, dist_dir: Path) -> dict[str, int]:
         return counts
     for backend_name, (_cls, ext) in _BACKENDS.items():
         out_dir = Path(dist_dir) / backend_name
-        out_dir.mkdir(parents=True, exist_ok=True)
         for rule in rules:
             try:
                 query = convert_rule(rule, backend_name)
             except Exception as exc:  # one bad rule must not abort the whole backend
                 print(f"[warn] {rule.id} -> {backend_name}: {exc}")
                 continue
+            # Create the backend dir lazily, only once we have output to write, so a
+            # backend that yields zero successful conversions leaves no empty dir.
+            out_dir.mkdir(parents=True, exist_ok=True)
             (out_dir / f"{rule.path.stem}.{ext}").write_text(query + "\n")
             counts[backend_name] = counts.get(backend_name, 0) + 1
     return counts
