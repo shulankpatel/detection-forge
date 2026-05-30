@@ -28,6 +28,8 @@ if _PYSIGMA_AVAILABLE:
         from sigma.backends.elasticsearch.elasticsearch_lucene import LuceneBackend
 
         _BACKENDS["elastic"] = (LuceneBackend, "ndjson")
+        # Wazuh indexer is OpenSearch; the Elastic/Lucene query applies directly (documented fallback per design §5).
+        _BACKENDS["wazuh"] = (LuceneBackend, "txt")
     except ImportError:
         pass
     try:
@@ -36,7 +38,6 @@ if _PYSIGMA_AVAILABLE:
         _BACKENDS["sentinel"] = (Microsoft365DefenderBackend, "kql")
     except ImportError:
         pass
-    # Wazuh: best-effort; falls back to Elastic export if no dedicated backend is installed.
 
 AVAILABLE_BACKENDS = list(_BACKENDS)
 
