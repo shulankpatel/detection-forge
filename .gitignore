@@ -8,3 +8,4 @@ venv/
 dist/*
 !dist/.gitkeep
 .DS_Store
+site/data.json
