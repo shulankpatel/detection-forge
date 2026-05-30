@@ -34,6 +34,17 @@ python3 -m forge.cli coverage
 - `pip install -e .` registers the short `forge` command, so you can run `forge build` / `forge test` / `forge coverage` instead of `python3 -m forge.cli ...`.
 - Converting rules to actual SIEM queries needs the pySigma backends: `pip install -r requirements-backends.txt`. This is done automatically in CI; without the backends, `forge build` simply reports that no backends are available and skips conversion (tests still pass).
 
+### Draft a detection from a threat report
+```bash
+python3 -m forge.cli ingest https://some-vendor.com/threat-report
+# or from a saved file:  python3 -m forge.cli ingest --file report.html
+```
+This extracts indicators (IOCs) and ATT&CK technique IDs from the report and writes a
+**reviewable** Sigma draft to `rules/ingested/` (with sanity test events). It's
+`status: experimental` — review the field mappings, then it converts to all four SIEMs and
+joins the catalog like any other rule. Rule-based extraction (no AI): it captures
+explicitly-stated indicators/techniques, not free-form behavioral prose.
+
 ## How detections are tested
 
 The test backbone is **pure Python** and needs no SIEM and no network. `forge/validator.py` is a focused Sigma-logic evaluator: for each rule it reads the `detection:` selections and `condition:` and evaluates them against sample JSON events:
