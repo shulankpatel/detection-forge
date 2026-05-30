@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>detection-forge — Detection-as-Code catalog</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="hero">
+    <h1>detection-forge</h1>
+    <p class="tagline">Write a detection once in Sigma — get tested, ATT&amp;CK-mapped queries for Splunk, Sentinel, Elastic &amp; Wazuh, automatically.</p>
+    <div id="stats" class="stats"></div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/shulankpatel/detection-forge">View on GitHub</a>
+      <a class="btn" href="#catalog-section">Browse detections</a>
+    </div>
+  </header>
+  <main>
+    <section id="catalog-section">
+      <h2>Detection catalog</h2>
+      <div class="filters">
+        <label>Platform <select id="filter-platform"></select></label>
+        <label>Tactic <select id="filter-tactic"></select></label>
+      </div>
+      <div id="catalog" class="grid"></div>
+    </section>
+    <section id="coverage-section">
+      <h2>MITRE ATT&amp;CK coverage</h2>
+      <div id="heatmap" class="heatmap"></div>
+    </section>
+  </main>
+  <footer>
+    <p>Built with <a href="https://github.com/shulankpatel/detection-forge">detection-forge</a> · MIT</p>
+  </footer>
+  <script src="assets/app.js"></script>
+</body>
+</html>
