@@ -1,0 +1,4 @@
+[
+  {"Image": "C:\\Windows\\System32\\schtasks.exe",
+   "CommandLine": "schtasks.exe /create /tn evil /tr c:\\a.exe /sc onlogon"}
+]
