@@ -22,6 +22,11 @@ def main(argv=None) -> int:
     sub.add_parser("test", help="run the detection test suite via pytest")
     sub.add_parser("coverage", help="write the ATT&CK layer")
     sub.add_parser("export", help="generate site/data.json for the website")
+    ing = sub.add_parser("ingest", help="draft a detection from a threat report URL or file")
+    ing.add_argument("url", nargs="?", help="report URL (or use --file)")
+    ing.add_argument("--file", help="read a saved report from a local file instead of a URL")
+    ing.add_argument("--out", help="output dir for the draft rule (default: rules/ingested)")
+    ing.add_argument("--fixtures", help="fixtures dir (default: tests/fixtures)")
     args = parser.parse_args(argv)
 
     if args.cmd == "test":
@@ -40,6 +45,20 @@ def main(argv=None) -> int:
         out = write_export(data, ROOT / "site" / "data.json")
         print(f"Wrote {out} ({data['stats']['detections']} detections, "
               f"{len(data['backends_available'])} live backends)")
+    elif args.cmd == "ingest":
+        from forge.ingest import load_source, to_plain_text, ingest as run_ingest
+        raw, ref = load_source(url=args.url, file=args.file)
+        text = to_plain_text(raw)
+        out_dir = args.out or (RULES / "ingested")
+        fx_dir = args.fixtures or (ROOT / "tests" / "fixtures")
+        res = run_ingest(text, ref, out_dir, fx_dir)
+        found = {k: len(v) for k, v in res["iocs"].items() if v}
+        print(f"Drafted {res['rule']}")
+        print(f"  source : {ref}")
+        print(f"  IOCs   : {found}")
+        print(f"  ATT&CK : {res['attack']}")
+        print("  NOTE   : status=experimental - REVIEW the draft (and its field mappings) before trusting it.")
+        return 0
     return 0
 
 

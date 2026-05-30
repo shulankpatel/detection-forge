@@ -148,3 +148,43 @@ def ingest(text: str, source_ref: str, out_dir, fixtures_dir) -> dict:
     (fx / "positive.json").write_text(json.dumps(pos, indent=2))
     (fx / "negative.json").write_text(json.dumps(neg, indent=2))
     return {"rule": rule_path, "id": rule["id"], "iocs": iocs, "attack": attack}
+
+import html.parser
+import urllib.request
+
+_MAX_BYTES = 2_000_000
+
+class _TextExtractor(html.parser.HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self._skip = 0
+        self.parts = []
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self._skip += 1
+    def handle_endtag(self, tag):
+        if tag in ("script", "style") and self._skip:
+            self._skip -= 1
+    def handle_data(self, data):
+        if not self._skip and data.strip():
+            self.parts.append(data.strip())
+
+def to_plain_text(raw: str) -> str:
+    if "<" in raw and ">" in raw:
+        p = _TextExtractor()
+        p.feed(raw)
+        return "\n".join(p.parts)
+    return raw
+
+def load_source(url=None, file=None, text=None):
+    provided = [x for x in (url, file, text) if x]
+    if len(provided) != 1:
+        raise ValueError("provide exactly one of: url, file, text")
+    if text:
+        return text, "inline-text"
+    if file:
+        p = Path(file)
+        return p.read_text(errors="replace"), str(p)
+    req = urllib.request.Request(url, headers={"User-Agent": "detection-forge-ingest"})
+    with urllib.request.urlopen(req, timeout=30) as resp:  # nosec - user-supplied URL, local CLI
+        return resp.read(_MAX_BYTES).decode("utf-8", errors="replace"), url

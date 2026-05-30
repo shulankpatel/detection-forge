@@ -96,3 +96,17 @@ def test_ingest_writes_rule_and_fixtures(tmp_path):
     neg = json.loads((fx / "negative.json").read_text())
     assert all(matches(loaded.detection, e) for e in pos)
     assert all(not matches(loaded.detection, e) for e in neg)
+
+from forge.ingest import load_source, to_plain_text
+
+def test_end_to_end_from_html_file(tmp_path):
+    raw, ref = load_source(file="tests/fixtures/_ingest/sample_report.html")
+    text = to_plain_text(raw)
+    assert "console.log" not in text          # script stripped
+    assert "powershell.exe" in text
+    res = ingest(text, "https://example.com/examplestealer", tmp_path / "rules", tmp_path / "fix")
+    loaded = load_rule(res["rule"])
+    assert loaded.attack_techniques == ["T1059.001", "T1547.001"]
+    assert res["iocs"]["sha256"]
+    pos = json.loads((tmp_path / "fix" / loaded.id / "positive.json").read_text())
+    assert all(matches(loaded.detection, e) for e in pos)
