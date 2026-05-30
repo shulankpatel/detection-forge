@@ -1,0 +1,8 @@
+# Best-effort conversion backends (pySigma + per-SIEM plugins).
+# These are OPTIONAL: CI installs them tolerantly (`|| echo ...`) so a backend
+# packaging hiccup never turns the build red. Conversion is skipped for any
+# backend whose plugin is unavailable.
+pysigma>=0.11
+pysigma-backend-splunk>=1.1
+pysigma-backend-elasticsearch>=1.0
+pysigma-backend-microsoft365defender>=1.0

@@ -1,7 +1,7 @@
-pysigma>=0.11
-pysigma-backend-splunk>=1.1
-pysigma-backend-elasticsearch>=1.0
-pysigma-backend-microsoft365defender>=1.0
+# Core dependencies — reliably installable; CI requires these to succeed.
+# Rule loading/validation/tests need pyyaml + pytest; ruff lints; sigma-cli
+# provides `sigma check` for Sigma rule linting.
 pyyaml>=6.0
 pytest>=8.0
 ruff>=0.5
+sigma-cli>=1.0

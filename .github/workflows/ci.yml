@@ -1,0 +1,47 @@
+name: detection-forge CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Core dependencies must install — the test backbone depends on them.
+      - name: Install core dependencies
+        run: pip install -r requirements.txt
+
+      # Conversion backends are best-effort: a packaging hiccup must not fail CI.
+      # Any backend that does not install is simply skipped during the build step.
+      - name: Install conversion backends (optional)
+        run: pip install -r requirements-backends.txt || echo "conversion backends optional/unavailable"
+
+      - name: Lint Python (ruff)
+        run: ruff check forge tests
+
+      - name: Lint Sigma rules (non-blocking)
+        run: sigma check rules || echo "sigma check warnings (non-blocking)"
+
+      - name: Build (convert rules to all available backends)
+        run: python -m forge.cli build
+
+      - name: Test (unit + per-rule fixtures)
+        run: pytest -v
+
+      - name: Generate ATT&CK coverage layer
+        run: python -m forge.cli coverage
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: converted-rules
+          path: dist/
