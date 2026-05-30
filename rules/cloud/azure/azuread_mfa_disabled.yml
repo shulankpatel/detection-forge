@@ -1,0 +1,20 @@
+title: Azure AD Multi-Factor Authentication Disabled
+id: 0a1f8b10-0008-4000-8000-000000000008
+status: experimental
+description: Detects disabling of strong authentication (MFA) for an Azure AD user, or user-management changes that can weaken authentication, both used by attackers to maintain access after account compromise.
+logsource:
+  product: azure
+  service: auditlogs
+detection:
+  selection_mfa:
+    operationName|contains: 'Disable Strong Authentication'
+  selection_update:
+    Category: UserManagement
+    operationName|contains: 'Update user'
+  condition: selection_mfa or selection_update
+falsepositives:
+  - Administrators intentionally reconfiguring authentication methods during onboarding or policy changes.
+level: high
+tags:
+  - attack.persistence
+  - attack.t1078

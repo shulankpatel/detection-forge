@@ -1,0 +1,5 @@
+[
+  {"operationName": "Disable Strong Authentication", "Category": "UserManagement",
+   "result": "success"},
+  {"operationName": "Update user", "Category": "UserManagement", "result": "success"}
+]
