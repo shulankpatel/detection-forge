@@ -61,8 +61,8 @@ what a report states explicitly — it does not interpret free-form behavioral p
 |----------|----------------|
 | `load_source(url=None, file=None, text=None)` | Return raw text from a URL (`urllib` GET), a local file, or a passed string. Exactly one source. |
 | `to_plain_text(html)` | Strip HTML to text + collect `<code>`/`<pre>` blocks, via stdlib `html.parser`. |
-| `extract_iocs(text)` | Return `{type: [values]}` for IPv4, IPv6, domain, url, md5, sha1, sha256, filepath, regkey, cve, email, cmdline. Stdlib `re`. Dedupe; defang-aware (`hxxp`, `[.]`). |
-| `extract_attack(text)` | Return deduped uppercased technique IDs matching `T\d{4}(\.\d{3})?`, mapped to name/tactic via the shared `TECHNIQUES` map. |
+| `extract_iocs(text)` | Return `{type: [values]}` for IPv4, domain, url, md5, sha1, sha256, filepath, regkey, cve, email, cmdline. Stdlib `re`. Dedupe; defang-aware (`hxxp`, `[.]`). (IPv6 extraction is roadmap — a reliable IPv6 regex is fiddly and prone to false matches like MAC addresses.) |
+| `extract_attack(text)` | Return deduped, uppercased technique IDs matching `T\d{4}(\.\d{3})?` (e.g. `T1059.001`). The technique name/tactic is attached later by the exporter. |
 | `draft_rule(source_ref, iocs, attack, title=None)` | Build a valid Sigma rule dict (see §4). |
 | `make_fixtures(rule)` | Return `(positive, negative)` sanity events (see §5). |
 | `ingest(source_ref, text, out_dir, fixtures_dir)` | Orchestrate: extract → draft → write rule + fixtures; return the written paths. |

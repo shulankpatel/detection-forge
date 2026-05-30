@@ -69,7 +69,7 @@ rules/                       author once (Sigma YAML, ATT&CK-tagged)
         ▼
 dist/
   splunk/    *.spl             Splunk SPL
-  sentinel/  *.kql             Microsoft Sentinel KQL (Microsoft 365 Defender backend)
+  sentinel/  *.kql             Microsoft Sentinel KQL (Kusto backend)
   elastic/   *.ndjson          Elastic detection rules
   wazuh/     *.txt             Elastic/OpenSearch-compatible query for the Wazuh indexer*
   attack-navigator-layer.json  aggregated ATT&CK coverage

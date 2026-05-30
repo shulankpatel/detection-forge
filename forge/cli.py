@@ -47,11 +47,15 @@ def main(argv=None) -> int:
               f"{len(data['backends_available'])} live backends)")
     elif args.cmd == "ingest":
         from forge.ingest import load_source, to_plain_text, ingest as run_ingest
-        raw, ref = load_source(url=args.url, file=args.file)
-        text = to_plain_text(raw)
-        out_dir = args.out or (RULES / "ingested")
-        fx_dir = args.fixtures or (ROOT / "tests" / "fixtures")
-        res = run_ingest(text, ref, out_dir, fx_dir)
+        try:
+            raw, ref = load_source(url=args.url, file=args.file)
+            text = to_plain_text(raw)
+            out_dir = args.out or (RULES / "ingested")
+            fx_dir = args.fixtures or (ROOT / "tests" / "fixtures")
+            res = run_ingest(text, ref, out_dir, fx_dir)
+        except (ValueError, OSError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
         found = {k: len(v) for k, v in res["iocs"].items() if v}
         print(f"Drafted {res['rule']}")
         print(f"  source : {ref}")
