@@ -1,0 +1,4 @@
+[
+  {"eventSource": "cloudtrail.amazonaws.com", "eventName": "StartLogging",
+   "requestParameters": {"name": "org-trail"}}
+]

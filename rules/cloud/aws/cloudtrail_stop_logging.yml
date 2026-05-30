@@ -1,0 +1,21 @@
+title: AWS CloudTrail Logging Disabled or Tampered
+id: 0a1f8b10-0006-4000-8000-000000000006
+status: experimental
+description: Detects attempts to stop, delete, or reconfigure a CloudTrail trail, a common defense-evasion step taken to blind logging before further activity.
+logsource:
+  product: aws
+  service: cloudtrail
+detection:
+  selection:
+    eventSource: cloudtrail.amazonaws.com
+    eventName:
+      - StopLogging
+      - DeleteTrail
+      - UpdateTrail
+  condition: selection
+falsepositives:
+  - Planned trail maintenance or reconfiguration by cloud administrators.
+level: high
+tags:
+  - attack.defense_evasion
+  - attack.t1562.008
