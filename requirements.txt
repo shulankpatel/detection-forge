@@ -5,3 +5,4 @@ pyyaml>=6.0
 pytest>=8.0
 ruff>=0.5
 sigma-cli>=1.0
+python-evtx>=0.7  # parse real EVTX attack telemetry (tests/test_real_telemetry.py)

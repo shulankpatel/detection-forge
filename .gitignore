@@ -9,3 +9,8 @@ dist/*
 !dist/.gitkeep
 .DS_Store
 site/data.json
+
+# Real attack-telemetry samples are GPL-3.0 (EVTX-ATTACK-SAMPLES) and fetched on
+# demand by scripts/fetch_samples.py — NOT redistributed in this MIT repo.
+samples/*
+!samples/README.md

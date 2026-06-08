@@ -8,6 +8,7 @@
 ![ATT&CK techniques](https://img.shields.io/badge/ATT%26CK_techniques-9-red)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
+![Real-telemetry validated](https://img.shields.io/badge/real--telemetry-validated-brightgreen)
 
 **🔗 Live site:** https://shulankpatel.github.io/detection-forge/
 
@@ -55,6 +56,17 @@ The test backbone is **pure Python** and needs no SIEM and no network. `forge/va
 `pytest` parametrizes over every rule's fixtures, so adding a detection automatically adds its true-positive/false-positive assertions. The evaluator supports the Sigma features the bundled rules use — field equality, `contains`, `startswith`/`endswith`, wildcards, nested (dotted) field lookups, and `and`/`or`/`not` plus `1 of` / `all of`.
 
 Conversion to SIEM queries is validated in **CI**, where the pySigma backends are installed. Be aware that the converter's test (`tests/test_converter.py`) **skips locally when pySigma is not installed** — you'll see `1 skipped` in that case. That is expected; the conversion path is exercised in CI.
+
+### Validated against real attack telemetry
+
+Hand-written fixtures only prove a rule fires on events *you imagined*. Selected rules are **also validated against real malicious telemetry**, parsed straight from `.evtx` files in [EVTX-ATTACK-SAMPLES](https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES) — same pure-Python evaluator, real attacker behavior, no SIEM and no VM:
+
+```bash
+python3 scripts/fetch_samples.py        # GPL-3.0 samples, fetched not vendored
+python3 -m pytest tests/test_real_telemetry.py -v
+```
+
+This immediately caught a real detection gap: the LSASS rule's `GrantedAccess` allowlist missed `0x001f1fff`, the broad-access mask a real meterpreter hashdump used — so the rule silently missed the dump until it was tuned. A fixture would never have caught it. Full write-up: [`docs/real-telemetry-validation.md`](docs/real-telemetry-validation.md).
 
 ## Repository layout
 

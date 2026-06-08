@@ -34,7 +34,12 @@ jobs:
       - name: Build (convert rules to all available backends)
         run: python -m forge.cli build
 
-      - name: Test (unit + per-rule fixtures)
+      # Real attack-telemetry samples (GPL-3.0, fetched not vendored). A network
+      # hiccup is non-fatal: tests/test_real_telemetry.py skips if samples are absent.
+      - name: Fetch real attack-telemetry samples
+        run: python scripts/fetch_samples.py || echo "sample fetch failed; real-telemetry tests will skip"
+
+      - name: Test (unit + per-rule fixtures + real attack telemetry)
         run: pytest -v
 
       - name: Generate ATT&CK coverage layer
