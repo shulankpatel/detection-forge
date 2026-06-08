@@ -1,5 +1,21 @@
 # tests/test_ingest.py
-from forge.ingest import extract_iocs, extract_attack
+import json
+from pathlib import Path
+
+import pytest
+import yaml
+
+from forge.ingest import (
+    draft_rule,
+    extract_attack,
+    extract_iocs,
+    ingest,
+    load_source,
+    make_fixtures,
+    to_plain_text,
+)
+from forge.loader import load_rule
+from forge.validator import matches
 
 SAMPLE = (
     "The attacker exploited CVE-2024-1234 and ran:\n"
@@ -40,12 +56,6 @@ def test_domain_extraction_skips_filenames():
     assert "evil.exe" not in iocs["domain"]
     assert "gate.php" not in iocs["domain"]
 
-import json
-from pathlib import Path
-from forge.ingest import draft_rule, make_fixtures, ingest
-from forge.loader import load_rule
-from forge.validator import matches
-
 def _iocs():
     return {
         "sha256": ["e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"],
@@ -59,7 +69,6 @@ def _iocs():
 def test_draft_rule_is_loader_valid(tmp_path):
     rule = draft_rule("https://example.com/report", _iocs(), ["T1059.001"])
     p = tmp_path / "r.yml"
-    import yaml
     p.write_text(yaml.safe_dump(rule, sort_keys=False))
     loaded = load_rule(p)  # raises if invalid
     assert loaded.attack_techniques == ["T1059.001"]
@@ -74,7 +83,6 @@ def test_draft_rule_id_is_deterministic():
     assert a["id"] == b["id"]
 
 def test_no_indicators_raises():
-    import pytest
     with pytest.raises(ValueError):
         draft_rule("https://x.com/a", {"cve": ["CVE-2024-1"]}, [])  # cve is not a detection field
 
@@ -96,8 +104,6 @@ def test_ingest_writes_rule_and_fixtures(tmp_path):
     neg = json.loads((fx / "negative.json").read_text())
     assert all(matches(loaded.detection, e) for e in pos)
     assert all(not matches(loaded.detection, e) for e in neg)
-
-from forge.ingest import load_source, to_plain_text
 
 def test_end_to_end_from_html_file(tmp_path):
     raw, ref = load_source(file="tests/fixtures/_ingest/sample_report.html")

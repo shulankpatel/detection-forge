@@ -1,7 +1,14 @@
 # forge/ingest.py
 from __future__ import annotations
 
+import html.parser
+import json
 import re
+import urllib.request
+import uuid
+from pathlib import Path
+
+import yaml
 
 # Re-fang common defanging so indicators match.
 def _refang(text: str) -> str:
@@ -65,11 +72,6 @@ def extract_iocs(text: str) -> dict:
         if any(h in ln.lower() for h in _CMD_HINTS) and ln.strip()
     )
     return iocs
-
-import json
-import uuid
-from pathlib import Path
-import yaml
 
 # IOC type -> (selection name, Sigma field expression)
 _FIELD_MAP = [
@@ -148,9 +150,6 @@ def ingest(text: str, source_ref: str, out_dir, fixtures_dir) -> dict:
     (fx / "positive.json").write_text(json.dumps(pos, indent=2))
     (fx / "negative.json").write_text(json.dumps(neg, indent=2))
     return {"rule": rule_path, "id": rule["id"], "iocs": iocs, "attack": attack}
-
-import html.parser
-import urllib.request
 
 _MAX_BYTES = 2_000_000
 
