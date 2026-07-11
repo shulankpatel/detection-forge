@@ -2,6 +2,7 @@
 # Rule loading/validation/tests need pyyaml + pytest; ruff lints; sigma-cli
 # provides `sigma check` for Sigma rule linting. Flask serves the web UI and API.
 flask>=2.0
+gunicorn>=20.0  # WSGI server for production deployment (Render, Heroku, etc.)
 pyyaml>=6.0
 pytest>=8.0
 ruff>=0.5

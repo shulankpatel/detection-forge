@@ -179,9 +179,11 @@ def api_rules():
 
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_ENV") == "development"
     print("Starting detection-forge web server...")
-    print("📚 Detection Catalog: http://localhost:5000")
-    print("🔍 Threat Ingest API: POST http://localhost:5000/api/ingest")
-    print("📊 Rules API: http://localhost:5000/api/rules")
+    print(f"📚 Detection Catalog: http://localhost:{port}")
+    print(f"🔍 Threat Ingest API: POST http://localhost:{port}/api/ingest")
+    print(f"📊 Rules API: http://localhost:{port}/api/rules")
     print("")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=debug, host="0.0.0.0", port=port)
