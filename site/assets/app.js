@@ -84,7 +84,7 @@ async function doIngest(sourceType, content, filename, statusDiv, resultsDiv) {
     const payload = { source: sourceType, content };
     if (filename) payload.filename = filename;
 
-    const res = await fetch("/api/ingest", {
+    const res = await fetch("https://detection-forge-api.onrender.com/api/ingest", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
