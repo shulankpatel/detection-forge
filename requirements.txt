@@ -2,6 +2,7 @@
 # Rule loading/validation/tests need pyyaml + pytest; ruff lints; sigma-cli
 # provides `sigma check` for Sigma rule linting. Flask serves the web UI and API.
 flask>=2.0
+flask-cors>=4.0  # Enable CORS for cross-origin requests from GitHub Pages frontend
 gunicorn>=20.0  # WSGI server for production deployment (Render, Heroku, etc.)
 pyyaml>=6.0
 pytest>=8.0

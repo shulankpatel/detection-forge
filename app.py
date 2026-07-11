@@ -12,11 +12,13 @@ import os
 import tempfile
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask_cors import CORS
 
 from forge.loader import load_all
 from forge.ingest import load_source, to_plain_text, ingest
 
 app = Flask(__name__, static_folder="site/assets", static_url_path="/assets")
+CORS(app)
 
 ROOT = Path(__file__).resolve().parent
 RULES_DIR = ROOT / "rules"
