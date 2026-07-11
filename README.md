@@ -4,8 +4,8 @@
 
 <!-- After pushing to GitHub, update the username/repo in the badge URL below to match your fork (e.g. github.com/<you>/<repo>). -->
 [![CI](https://github.com/shulankpatel/detection-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/shulankpatel/detection-forge/actions/workflows/ci.yml)
-![Detections](https://img.shields.io/badge/Detections-8-blue)
-![ATT&CK techniques](https://img.shields.io/badge/ATT%26CK_techniques-9-red)
+![Detections](https://img.shields.io/badge/Detections-11-blue)
+![ATT&CK techniques](https://img.shields.io/badge/ATT%26CK_techniques-12-red)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Real-telemetry validated](https://img.shields.io/badge/real--telemetry-validated-brightgreen)
@@ -14,9 +14,7 @@
 
 ## What it does
 
-detection-forge is a **Detection-as-Code** pipeline. You author each detection once as a [Sigma](https://github.com/SigmaHQ/sigma) rule — tagged with its MITRE ATT&CK technique and shipped with sample events — and the engine converts it into per-platform queries for Splunk, Microsoft Sentinel (KQL via the pySigma Kusto backend; usable in Microsoft Sentinel / Defender XDR / Azure Data Explorer), Elastic, and Wazuh,\* unit-tests its logic against the sample events, and aggregates every rule into a MITRE ATT&CK Navigator coverage layer. Every rule is validated and **tested in CI** on each push, so detections that no longer fire correctly (or stop converting) break the build instead of silently rotting in production.
-
-<sub>\* *Elastic/OpenSearch-compatible queries for the Wazuh indexer; a native Wazuh XML backend is on the roadmap.*</sub>
+detection-forge is a **Detection-as-Code** pipeline. You author each detection once as a [Sigma](https://github.com/SigmaHQ/sigma) rule — tagged with its MITRE ATT&CK technique and shipped with sample events — and the engine converts it into per-platform queries for Splunk, Microsoft Sentinel (KQL via the pySigma Kusto backend; usable in Microsoft Sentinel / Defender XDR / Azure Data Explorer), Elastic, and Wazuh (native XML format), unit-tests its logic against the sample events, and aggregates every rule into a MITRE ATT&CK Navigator coverage layer. Every rule is validated and **tested in CI** on each push, so detections that no longer fire correctly (or stop converting) break the build instead of silently rotting in production.
 
 ## Quickstart
 

@@ -1,0 +1,25 @@
+title: Linux Cron Job Persistence
+id: 0a1f8b10-000a-4000-8000-000000000010
+status: experimental
+description: Detects crontab commands or writes to cron directories, which can indicate persistence mechanism installation.
+logsource:
+  product: linux
+  category: process_creation
+detection:
+  selection_cron_edit:
+    Image|endswith:
+      - /crontab
+      - /bash
+      - /sh
+  selection_cron_path:
+    CommandLine|contains:
+      - '/etc/cron'
+      - 'crontab -e'
+  condition: selection_cron_edit and selection_cron_path
+falsepositives:
+  - System administrators managing scheduled tasks through crontab.
+  - Automated backup or maintenance scripts installing cron jobs.
+level: medium
+tags:
+  - attack.persistence
+  - attack.t1053.003

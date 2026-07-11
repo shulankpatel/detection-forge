@@ -1,0 +1,10 @@
+[
+  {
+    "Image": "/usr/bin/crontab",
+    "CommandLine": "crontab -l"
+  },
+  {
+    "Image": "/bin/bash",
+    "CommandLine": "bash -i"
+  }
+]

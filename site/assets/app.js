@@ -2,7 +2,7 @@
 const PLATFORM_LABELS = { windows: "Windows", aws: "AWS", azure: "Azure" };
 const BACKEND_TABS = [
   ["sigma", "Sigma"], ["splunk", "Splunk"], ["sentinel", "Sentinel"],
-  ["elastic", "Elastic"], ["wazuh", "Wazuh"], ["tests", "Tests"],
+  ["elastic", "Elastic"], ["wazuh", "Wazuh"], ["compliance", "Compliance"], ["tests", "Tests"],
 ];
 let DATA = null;
 
@@ -104,6 +104,11 @@ function wireCard(d, i) {
 
 function tabContent(d, key) {
   if (key === "sigma") return codeBlock(d.sigma);
+  if (key === "compliance") {
+    const c = d.compliance;
+    return `<h4>NIST 800-53</h4><p>${c.nist.map(id => `<code>${esc(id)}</code>`).join(" ")}</p>` +
+           `<h4>SOC 2</h4><p>${c.soc2.map(id => `<code>${esc(id)}</code>`).join(" ")}</p>`;
+  }
   if (key === "tests") {
     return `<h4>Should fire</h4>${codeBlock(JSON.stringify(d.tests.positive, null, 2))}` +
            `<h4>Should NOT fire</h4>${codeBlock(JSON.stringify(d.tests.negative, null, 2))}`;

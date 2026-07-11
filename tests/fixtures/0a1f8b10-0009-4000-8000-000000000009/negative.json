@@ -1,0 +1,10 @@
+[
+  {
+    "Image": "/usr/bin/sudo",
+    "CommandLine": "sudo ls -la"
+  },
+  {
+    "Image": "/bin/bash",
+    "CommandLine": "/bin/bash -i"
+  }
+]

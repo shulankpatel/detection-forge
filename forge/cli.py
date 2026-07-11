@@ -21,7 +21,15 @@ def main(argv=None) -> int:
     sub.add_parser("build", help="convert rules to all backends")
     sub.add_parser("test", help="run the detection test suite via pytest")
     sub.add_parser("coverage", help="write the ATT&CK layer")
+    sub.add_parser("compliance", help="generate compliance control mapping (NIST 800-53 / SOC 2)")
     sub.add_parser("export", help="generate site/data.json for the website")
+    dep = sub.add_parser("deploy", help="deploy rules to live SIEM (dry-run mode by default)")
+    dep.add_argument("--backend", required=True, choices=["splunk", "elastic", "sentinel"],
+                    help="SIEM backend to deploy to")
+    dep.add_argument("--dry-run", action="store_true", default=True,
+                    help="preview deploy without making changes (default: true)")
+    dep.add_argument("--execute", action="store_true",
+                    help="actually deploy (requires env vars: SPLUNK_URL/TOKEN, ELASTIC_URL/TOKEN, etc.)")
     ing = sub.add_parser("ingest", help="draft a detection from a threat report URL or file")
     ing.add_argument("url", nargs="?", help="report URL (or use --file)")
     ing.add_argument("--file", help="read a saved report from a local file instead of a URL")
@@ -39,6 +47,26 @@ def main(argv=None) -> int:
     elif args.cmd == "coverage":
         out = write_layer(rules, DIST)
         print(f"Wrote {out}")
+    elif args.cmd == "compliance":
+        from forge.compliance import write_compliance_report
+        out = write_compliance_report(rules, DIST)
+        print(f"Wrote {out}")
+    elif args.cmd == "deploy":
+        from forge.deploy import deploy
+        dry_run = not args.execute
+        try:
+            results = deploy(args.backend, rules, DIST, dry_run=dry_run)
+            mode = "dry-run" if dry_run else "live"
+            print(f"Deploy to {args.backend} ({mode}):")
+            for r in results:
+                status_marker = "✓" if r["status"] == "deployed" else "○" if r["status"] == "dry-run" else "✗"
+                print(f"  {status_marker} {r['rule_id']:40s} {r['status']:12s}")
+                if r.get("message"):
+                    for line in r["message"].split("\n"):
+                        print(f"      {line}")
+        except ValueError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 1
     elif args.cmd == "export":
         from forge.exporter import build_export_data, write_export
         data = build_export_data(RULES, ROOT / "tests" / "fixtures")

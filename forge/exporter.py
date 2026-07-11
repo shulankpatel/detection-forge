@@ -7,6 +7,7 @@ from pathlib import Path
 from forge.loader import load_all
 from forge.converter import AVAILABLE_BACKENDS, convert_rule
 from forge.coverage import build_layer
+from forge.compliance import _CONTROLS
 
 # Static ATT&CK metadata for the techniques this project covers (id -> (name, tactic)).
 TECHNIQUES = {
@@ -14,11 +15,14 @@ TECHNIQUES = {
     "T1059": ("Command and Scripting Interpreter", "Execution"),
     "T1003.001": ("LSASS Memory", "Credential Access"),
     "T1053.005": ("Scheduled Task", "Persistence"),
+    "T1053.003": ("Cron", "Persistence"),
     "T1566": ("Phishing", "Initial Access"),
     "T1078.004": ("Cloud Accounts", "Initial Access"),
     "T1078": ("Valid Accounts", "Initial Access"),
     "T1562.008": ("Disable Cloud Logs", "Defense Evasion"),
     "T1098": ("Account Manipulation", "Persistence"),
+    "T1548.003": ("Sudo and Sudo Caching", "Privilege Escalation"),
+    "T1021.004": ("SSH", "Lateral Movement"),
 }
 TACTIC_ORDER = [
     "Initial Access", "Execution", "Persistence",
@@ -29,7 +33,7 @@ BACKENDS = ["splunk", "sentinel", "elastic", "wazuh"]
 
 def _platform(rule) -> str:
     parts = set(rule.path.parts)
-    for p in ("windows", "aws", "azure"):
+    for p in ("windows", "aws", "azure", "linux"):
         if p in parts:
             return p
     return rule.logsource.get("product", "other")
@@ -67,6 +71,15 @@ def _conversions(rule) -> dict:
     return out
 
 
+def _compliance(rule) -> dict:
+    nist, soc2 = [], []
+    for tid in rule.attack_techniques:
+        if tid in _CONTROLS:
+            nist.extend(_CONTROLS[tid]["nist"])
+            soc2.extend(_CONTROLS[tid]["soc2"])
+    return {"nist": sorted(set(nist)), "soc2": sorted(set(soc2))}
+
+
 def build_export_data(rules_dir, fixtures_dir) -> dict:
     rules = load_all(rules_dir)
     detections = []
@@ -79,6 +92,7 @@ def build_export_data(rules_dir, fixtures_dir) -> dict:
             "platform": _platform(rule),
             "logsource": rule.logsource,
             "attack": _attack(rule),
+            "compliance": _compliance(rule),
             "sigma": rule.path.read_text(),
             "tests": _tests(rule, fixtures_dir),
             "conversions": _conversions(rule),

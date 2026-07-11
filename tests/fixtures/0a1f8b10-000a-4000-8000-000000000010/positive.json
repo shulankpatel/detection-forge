@@ -1,0 +1,10 @@
+[
+  {
+    "Image": "/usr/bin/crontab",
+    "CommandLine": "crontab -e"
+  },
+  {
+    "Image": "/bin/bash",
+    "CommandLine": "bash -c echo '* * * * * /tmp/evil.sh' >> /etc/cron.d/evil"
+  }
+]

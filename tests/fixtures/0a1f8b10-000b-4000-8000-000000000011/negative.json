@@ -1,0 +1,12 @@
+[
+  {
+    "ParentImage": "/usr/sbin/sshd",
+    "Image": "/usr/bin/ls",
+    "CommandLine": "ls -la"
+  },
+  {
+    "ParentImage": "/bin/bash",
+    "Image": "/bin/bash",
+    "CommandLine": "/bin/bash -i"
+  }
+]

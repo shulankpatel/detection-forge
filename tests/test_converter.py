@@ -26,3 +26,15 @@ def test_unavailable_backend_raises():
     rule = load_rule(FIX)
     with pytest.raises((ValueError, RuntimeError)):
         convert_rule(rule, "definitely_not_a_backend")
+
+
+def test_convert_to_wazuh_xml():
+    rule = load_rule(FIX)
+    out = convert_rule(rule, "wazuh")
+    assert isinstance(out, str) and len(out) > 0
+    assert out.startswith("<?xml version")
+    assert "<group" in out
+    assert "<rule" in out
+    assert "<field" in out
+    assert "<mitre>" in out
+    assert "T1059.001" in out  # ATT&CK technique from fixture
