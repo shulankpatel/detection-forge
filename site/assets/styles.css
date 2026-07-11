@@ -590,6 +590,143 @@ a:focus-visible, .card:focus-visible {
   border-radius: 6px;
 }
 
+/* --- Threat Ingestion Form ------------------------------------------------ */
+#ingest-section {
+  background: linear-gradient(135deg, rgba(74,222,128,.06) 0%, transparent 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.ingest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.ingest-tabs {
+  display: flex;
+  gap: .5rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1rem;
+}
+
+.ingest-tab-btn {
+  padding: .75rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: .9rem;
+  border-bottom: 2px solid transparent;
+  transition: all .18s var(--ease);
+}
+
+.ingest-tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.ingest-tab { display: none; }
+.ingest-tab.active { display: block; }
+
+#ingest-url, #ingest-text {
+  padding: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: .9rem;
+  line-height: 1.4;
+}
+
+#ingest-url { height: 2.5rem; }
+#ingest-text { height: 8rem; resize: vertical; min-height: 4rem; }
+
+#ingest-file {
+  padding: 1rem;
+  background: var(--panel);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.ingest-submit {
+  align-self: flex-start;
+  padding: .75rem 2rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-weight: 600;
+  transition: all .18s var(--ease);
+}
+
+.ingest-submit:hover {
+  background: #fff;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.ingest-status {
+  font-size: .9rem;
+  line-height: 1.4;
+}
+
+.ingest-status .loading::before {
+  content: "⟳ ";
+  animation: spin .8s linear infinite;
+}
+
+.ingest-status .success { color: var(--accent); }
+.ingest-status .error { color: var(--crit); }
+
+.ingest-results {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.ingest-rule-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ingest-rule-card h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.ingest-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: var(--panel-hi);
+  border-radius: var(--radius-sm);
+  font-size: .85rem;
+}
+
+.ingest-meta div {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* --- Responsive ------------------------------------------------------------ */
 @media (max-width: 760px) {
   .grid { grid-template-columns: 1fr; }

@@ -1,6 +1,7 @@
 # Core dependencies — reliably installable; CI requires these to succeed.
 # Rule loading/validation/tests need pyyaml + pytest; ruff lints; sigma-cli
-# provides `sigma check` for Sigma rule linting.
+# provides `sigma check` for Sigma rule linting. Flask serves the web UI and API.
+flask>=2.0
 pyyaml>=6.0
 pytest>=8.0
 ruff>=0.5

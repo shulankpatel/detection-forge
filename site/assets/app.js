@@ -24,6 +24,139 @@ async function init() {
   renderFilters(DATA);
   renderCatalog(DATA.detections);
   renderHeatmap(DATA.coverage);
+  initIngest();
+}
+
+// === Threat Report Ingestion ===
+function initIngest() {
+  // Tab switching
+  document.querySelectorAll(".ingest-tab-btn").forEach(btn =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".ingest-tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".ingest-tab").forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+    }));
+
+  // Submit button
+  document.querySelector(".ingest-submit").addEventListener("click", analyzeThreats);
+}
+
+async function analyzeThreats() {
+  const statusDiv = document.getElementById("ingest-status");
+  const resultsDiv = document.getElementById("ingest-results");
+  statusDiv.innerHTML = "";
+  resultsDiv.hidden = true;
+
+  let sourceType, content;
+  const activeTab = document.querySelector(".ingest-tab.active");
+
+  if (activeTab.id === "url-tab") {
+    const url = document.getElementById("ingest-url").value.trim();
+    if (!url) { statusDiv.innerHTML = '<p class="error">Please enter a URL.</p>'; return; }
+    sourceType = "url";
+    content = url;
+  } else if (activeTab.id === "text-tab") {
+    const text = document.getElementById("ingest-text").value.trim();
+    if (!text) { statusDiv.innerHTML = '<p class="error">Please paste some text.</p>'; return; }
+    sourceType = "text";
+    content = text;
+  } else if (activeTab.id === "file-tab") {
+    const file = document.getElementById("ingest-file").files[0];
+    if (!file) { statusDiv.innerHTML = '<p class="error">Please select a file.</p>'; return; }
+    sourceType = "file";
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = btoa(e.target.result);
+      await doIngest(sourceType, base64, file.name, statusDiv, resultsDiv);
+    };
+    reader.readAsText(file);
+    return;
+  }
+
+  await doIngest(sourceType, content, null, statusDiv, resultsDiv);
+}
+
+async function doIngest(sourceType, content, filename, statusDiv, resultsDiv) {
+  statusDiv.innerHTML = '<p class="loading">Analyzing threat report...</p>';
+
+  try {
+    const payload = { source: sourceType, content };
+    if (filename) payload.filename = filename;
+
+    const res = await fetch("/api/ingest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (data.status !== "success") {
+      statusDiv.innerHTML = `<p class="error">Error: ${esc(data.message)}</p>`;
+      return;
+    }
+
+    statusDiv.innerHTML = `<p class="success">✓ Generated detection rule: <strong>${esc(data.title)}</strong></p>`;
+    renderIngestResults(data, resultsDiv);
+  } catch (e) {
+    statusDiv.innerHTML = `<p class="error">Error: ${esc(e.message)}</p>`;
+  }
+}
+
+function renderIngestResults(data, resultsDiv) {
+  const iocsList = Object.entries(data.iocs)
+    .filter(([_, vals]) => vals && vals.length > 0)
+    .map(([type, vals]) => `<div><strong>${esc(type)}:</strong> ${vals.slice(0, 5).map(v => `<code>${esc(v)}</code>`).join(" ")}</div>`)
+    .join("");
+
+  const techniques = data.attack_techniques.map(t => `<span class="chip">${esc(t)}</span>`).join("");
+
+  const tabs = [
+    ["sigma", "Sigma", codeBlock(data.sigma_yaml)],
+    ["splunk", "Splunk", codeBlock(data.conversions.splunk)],
+    ["sentinel", "Sentinel", codeBlock(data.conversions.sentinel)],
+    ["elastic", "Elastic", codeBlock(data.conversions.elastic)],
+    ["wazuh", "Wazuh", codeBlock(data.conversions.wazuh)],
+    ["compliance", "Compliance", renderComplianceTab(data.compliance)],
+  ];
+
+  resultsDiv.innerHTML = `
+    <div class="ingest-rule-card">
+      <h3>${esc(data.title)}</h3>
+      <p>${esc(data.description)}</p>
+      <div class="ingest-meta">
+        <div><strong>Level:</strong> ${esc(data.level)}</div>
+        <div><strong>Rule ID:</strong> <code>${esc(data.rule_id)}</code></div>
+        <div><strong>Logsource:</strong> ${esc(JSON.stringify(data.logsource))}</div>
+      </div>
+      <div><strong>ATT&CK Techniques:</strong><br>${techniques}</div>
+      <div><strong>Extracted IOCs:</strong><br>${iocsList || "<p>No IOCs extracted.</p>"}</div>
+      <div class="tabs" style="margin-top: 1rem;">
+        <div class="tab-bar">
+          ${tabs.map(([k, label], i) => `<button class="tab-btn${i === 0 ? " active" : ""}" data-tab="${k}">${label}</button>`).join("")}
+        </div>
+        <div class="tab-body"></div>
+      </div>
+    </div>
+  `;
+  resultsDiv.hidden = false;
+
+  // Wire up result tabs
+  const body = resultsDiv.querySelector(".tab-body");
+  resultsDiv.querySelectorAll(".tab-btn").forEach((btn, idx) => {
+    btn.addEventListener("click", () => {
+      resultsDiv.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      body.innerHTML = tabs[idx][2];
+      wireCopy(body);
+    });
+  });
+  body.innerHTML = tabs[0][2];
+  wireCopy(body);
+}
+
+function renderComplianceTab(compliance) {
+  return `<div><h4>NIST 800-53</h4><p>${compliance.nist.map(id => `<code>${esc(id)}</code>`).join(" ")}</p><h4>SOC 2</h4><p>${compliance.soc2.map(id => `<code>${esc(id)}</code>`).join(" ")}</p></div>`;
 }
 
 function renderStats(data) {

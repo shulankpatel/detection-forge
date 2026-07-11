@@ -24,6 +24,30 @@
     </div>
   </header>
   <main>
+    <section id="ingest-section">
+      <p class="eyebrow section-eyebrow">// ingest</p>
+      <h2>Threat report analyzer</h2>
+      <p class="section-note">Paste a threat report URL, blog post text, or upload a file. We'll extract IOCs, ATT&CK techniques, and auto-generate detection queries.</p>
+      <div class="ingest-form">
+        <div class="ingest-tabs">
+          <button class="ingest-tab-btn active" data-tab="url-tab">Paste URL</button>
+          <button class="ingest-tab-btn" data-tab="text-tab">Paste Text</button>
+          <button class="ingest-tab-btn" data-tab="file-tab">Upload File</button>
+        </div>
+        <div id="url-tab" class="ingest-tab active">
+          <input type="url" id="ingest-url" placeholder="https://example.com/threat-report" />
+        </div>
+        <div id="text-tab" class="ingest-tab">
+          <textarea id="ingest-text" placeholder="Paste threat report text or HTML here..."></textarea>
+        </div>
+        <div id="file-tab" class="ingest-tab">
+          <input type="file" id="ingest-file" accept=".html,.txt,.md" />
+        </div>
+        <button class="btn primary ingest-submit">Analyze Threat</button>
+        <div id="ingest-status" class="ingest-status"></div>
+      </div>
+      <div id="ingest-results" class="ingest-results" hidden></div>
+    </section>
     <section id="catalog-section">
       <p class="eyebrow section-eyebrow">// catalog</p>
       <h2>Detection catalog</h2>
